@@ -11,5 +11,5 @@ var options = {
 
 const app = express();
 
-app.use('/', createProxyMiddleware({ target: 'http://localhost:5001', changeOrigin: true }));
+app.use('/', createProxyMiddleware({ target: process.env.PROXY_URI || 'http://localhost:5001', changeOrigin: true }));
 https.createServer(options, app).listen(443);
