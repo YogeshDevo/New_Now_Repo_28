@@ -2,6 +2,7 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 var https = require('https');
 var fs = require('fs');
+require('dotenv').config();
 
 
 var options = {
