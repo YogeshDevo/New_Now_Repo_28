@@ -1,0 +1,113 @@
+name: CMS
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Chocolatey
+        if: runner.os == 'Windows'
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+  #    - name: Install Node.js build tools
+   #     if: runner.os == 'Windows'
+    #    run: choco install python visualstudio2022buildtools visualstudio2022-workload-vctools -y
+
+      - name: Install PM2 globally
+        run: npm install pm2@latest -g
+
+      - name: Install SQL Server
+        uses: Particular/install-sql-server-action@v1.0.0
+        with:
+           connection-string-env-var: DATABASE_URL
+
+      - name: Download and Extract Production Files
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;' 
+          curl -L -o gil_cms_prod.zip "https://drive.google.com/uc?export=download&id=14pitMRkVMLIxxSlTF-49AFg6haqGamCa"
+  
+      - name: Set up Environment Variables
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          echo AUTH_TYPE=ldap >> $GITHUB_ENV
+          echo PORT=80 >> $GITHUB_ENV
+          echo SQLSERVER_HOST=localhost >> $GITHUB_ENV
+          echo SQLSERVER_USER=cmsadmin2 >> $GITHUB_ENV
+          echo SQLSERVER_PASSWORD=cmsadmin2 >> $GITHUB_ENV
+          echo SQLSERVER_DB_NAME=gil_cms2 >> $GITHUB_ENV
+          echo SQLSERVER_DB_BACKUP_PATH=C:/sqlserver_Backup >> $GITHUB_ENV
+          echo JWT_SECRET=Arizon123 >> $GITHUB_ENV
+          echo SUPER_ADMIN_USERNAME=super-admin >> $GITHUB_ENV
+          echo SUPER_ADMIN_PASSWORD=Arizon@123 >> $GITHUB_ENV
+          echo PRISMA_OPTIMIZE=N >> $GITHUB_ENV
+          echo PRISMA_LOGGING=Y >> $GITHUB_ENV
+          echo NODE_ENV=production >> $GITHUB_ENV
+          echo SEED=Y >> $GITHUB_ENV
+          echo SEED_BLOCK=Y >> $GITHUB_ENV
+
+   #   - name: Setup and Migrate Database
+    #    run: |
+     #     $env:Users\hp\Downloads\gil_cms_v1.0.6\gil_cms_prod
+     #     npm install
+      #    npx prisma db push
+                
+     
+    
+      - name: Install Dependencies and Migrate Database
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          npm init -y
+          npm install -g npm   
+          npx prisma db push
+          npm install
+        shell: pwsh
+
+    
+      - name: Set up database environment variable
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+        shell: pwsh
+
+      - name: Seed DataBase
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          set SEED=Y >> .env
+          set SEED_BLOCK=Y >> .env
+        #  node src/index.js
+         # set SEED=N
+          #set SEED_BLOCK=N
+       
+ 
+      - name: Update Environment Variables Post-Seed
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          echo SEED=N >> .env
+          echo SEED_BLOCK=N >> .env
+
+      - name: Start Backend with PM2
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          pm2 start src/index.js --name "cms-backend"
+          pm2 save 
+        
+          #pm2 start src/index.js -i 5
+
+
+      - name: Start Proxy Server with PM2
+        run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
+          pm2 start gil_cms_https_proxy/server.js --name "cms-proxy"
+
+        #  pm2 start server.js -i 5
