@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.200b126b.css",
+    "main.js": "/static/js/main.ed6eeba6.js",
+    "static/js/703.1d9b64af.chunk.js": "/static/js/703.1d9b64af.chunk.js",
+    "static/js/465.309d0893.chunk.js": "/static/js/465.309d0893.chunk.js",
+    "static/js/787.e4e399b5.chunk.js": "/static/js/787.e4e399b5.chunk.js",
+    "static/media/originalerror.png": "/static/media/originalerror.c4f9dee590d5e7375d1f.png",
+    "static/media/GIL-logo-hr.jpg": "/static/media/GIL-logo-hr.7fe998194dbf679391e4.jpg",
+    "static/media/granules--600.png": "/static/media/granules--600.182057bc22a2dedf410a.png",
+    "static/media/GIL-vertical.jpeg": "/static/media/GIL-vertical.c3915af93297f692d553.jpeg",
+    "index.html": "/index.html",
+    "main.200b126b.css.map": "/static/css/main.200b126b.css.map",
+    "main.ed6eeba6.js.map": "/static/js/main.ed6eeba6.js.map",
+    "703.1d9b64af.chunk.js.map": "/static/js/703.1d9b64af.chunk.js.map",
+    "465.309d0893.chunk.js.map": "/static/js/465.309d0893.chunk.js.map",
+    "787.e4e399b5.chunk.js.map": "/static/js/787.e4e399b5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.200b126b.css",
+    "static/js/main.ed6eeba6.js"
+  ]
+}

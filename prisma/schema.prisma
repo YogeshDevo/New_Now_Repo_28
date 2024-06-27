@@ -1,0 +1,562 @@
+generator client {
+  provider        = "prisma-client-js"
+  engineType      = "library"
+  previewFeatures = ["metrics", "tracing"]
+}
+
+datasource db {
+  // provider = "mongodb"
+  // url      = "mongodb+srv://prakash:744542@cluster0.cogjoez.mongodb.net/gil-cms?retryWrites=true&w=majority"
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------CHILDS----------------
+
+model Std_String {
+  id String @id @default(cuid()) @map("_id")
+
+  std_string                String?
+  instrument_calibration_id String?
+  instrument_calibration    instrumentCalibration? @relation(fields: [instrument_calibration_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  calibration_schedule_id   String?
+  calibration_schedule      calibrationSchedule?   @relation(fields: [calibration_schedule_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  instrument_request_id     String?
+  instrument_request        instrumentRequest?     @relation(fields: [instrument_request_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Performed_By_User {
+  id String @id @default(cuid()) @map("_id")
+
+  email     String?
+  timestamp String?
+  signature String? @db.NVarChar(Max)
+
+  calibration_schedule_id String?
+  calibration_schedule    calibrationSchedule? @relation(fields: [calibration_schedule_id], references: [id], onDelete: Cascade)
+
+  calReportId String?
+  calReport   calReport? @relation(fields: [calReportId], references: [id], onDelete: Cascade)
+
+  std_calibration_schedule_id String?
+  std_calibration_schedule    stdCalibrationSchedule? @relation(fields: [std_calibration_schedule_id], references: [id], onDelete: Cascade)
+}
+
+model Approved_By_User {
+  id String @id @default(cuid()) @map("_id")
+
+  email     String?
+  timestamp String?
+  signature String? @db.NVarChar(Max)
+
+  calReportId String?
+  calReport   calReport? @relation(fields: [calReportId], references: [id], onDelete: Cascade)
+}
+
+model Standard_Detail {
+  id String @id @default(cuid()) @map("_id")
+
+  acceptance_criteria String?
+  cal_date            BigInt?
+  certificate_no      String?
+  due_date            BigInt?
+  instrument_id_no    String?
+  instrument_name     String?
+  least_count         String?
+  make                String?
+  model_no            String?
+  range               String?
+  calReport           calReport? @relation(fields: [calReportId], references: [id], onDelete: Cascade)
+  calReportId         String
+}
+
+model Set_Point_calR {
+  id String @id @default(cuid()) @map("_id")
+
+  reading                      Float?
+  eq_reading                   Float?
+  before_for_adjustment        Float?
+  before                       Float?
+  eq_after                     Float?
+  after                        Float?
+  reading_string               String?
+  eq_reading_string            String?
+  before_for_adjustment_string String?
+  before_string                String?
+  eq_after_string              String?
+  after_string                 String?
+  setPointTable                Set_Point_Table? @relation(fields: [setPointTableId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  setPointTableId              String?
+  calReport                    calReport?       @relation(fields: [calReportId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  calReportId                  String?
+}
+
+model Set_Point_Table {
+  id String @id @default(cuid()) @map("_id")
+
+  range                      String?
+  least_count                String?          @default("")
+  unit_of_measure            String?
+  eq_unit                    String?
+  accuracy                   String?
+  additional_description     String?
+  reading_coefficient        Float?
+  reading_constant           Float?
+  reading_before_coefficient Float?
+  reading_before_constant    Float?
+  reading1High               Float?           @default(0)
+  reading1Low                Float?           @default(0)
+  reading2High               Float?           @default(0)
+  reading2Low                Float?           @default(0)
+  readingBefore1High         Float?           @default(0)
+  readingBefore1Low          Float?           @default(0)
+  readingBefore2High         Float?           @default(0)
+  readingBefore2Low          Float?           @default(0)
+  set_points                 Set_Point_calR[]
+  calReport                  calReport?       @relation(fields: [calReportId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  calReportId                String
+}
+
+// ----------------PARENTS----------------
+
+model instrumentCalibration {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  sop_link             String?
+  instrument_desc      String?
+  instrument_id        String?
+  instrument_location  String?
+  make                 String?
+  range                String?
+  least_count          String? //z.number().optional() ,
+  category             String?
+  frequency            String?
+  error_claimed        String?
+  calibration_done_on  BigInt? //data[2],   
+  due_date             BigInt? //data[2],
+  equipment_desc       String?
+  equipment_id         String?
+  equipment_location   String?
+  schedule_status      String?
+  status               String?
+  certificate_no       String?
+  checked_by           String?
+  instrument_object_id String?
+  qnn                  String?
+  std_used             Std_String[]
+  remarks              String?
+  department_id        String?
+}
+
+model calibrationSchedule {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  sop_link             String?
+  remarks              String?
+  instrument_desc      String?
+  instrument_id        String?
+  instrument_location  String?
+  make                 String?
+  range                String?
+  least_count          String? // Change this to Float if it's supposed to be a number
+  category             String?
+  frequency            String?
+  error_claimed        String?
+  calibration_done_on  BigInt?
+  due_date             BigInt?
+  equipment_desc       String?
+  equipment_id         String?
+  equipment_location   String?
+  status               String?
+  certificate_no       String?
+  schedule_status      String?
+  checked_by           String?
+  instrument_object_id String?
+  qnn                  String?
+  std_used             Std_String[]
+  performed_by         Performed_By_User[]
+  department_id        String?
+
+  @@index(fields: [due_date(sort: Desc), department_id])
+}
+
+model cfr {
+  id                   String   @id @default(cuid()) @map("_id")
+  created_at           BigInt?
+  updated_at           BigInt?
+  timestamp            BigInt?
+  timestamp_year_month String?
+  timestamp_year       String?
+  role                 String?
+  user_name            String?
+  email                String?
+  module               String
+  activity             String
+  description          String   @db.NVarChar(Max)
+  remarks              String?
+  qnn                  String?
+  method               String
+  notify               Boolean? @default(true)
+
+  @@index(fields: [timestamp(sort: Desc), timestamp_year_month(sort: Desc), timestamp_year(sort: Desc), module(sort: Desc)])
+}
+
+model instrumentMaster {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  instrument_name     String?
+  instrument_id_no    String?
+  make                String?
+  model_no            String?
+  range               String?
+  least_count         String?
+  acceptance_criteria String?
+  cal_date            BigInt?
+  due_date            BigInt?
+  certificate_no      String?
+  status              String?
+  qnn                 String?
+  remarks             String?
+  frequency           String?
+  department_id       String?
+}
+
+model instrumentRequest {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  instrument_desc      String?
+  instrument_id        String?
+  instrument_location  String?
+  make                 String?
+  range                String?
+  least_count          String?
+  category             String?
+  frequency            String?
+  error_claimed        String?
+  calibration_done_on  BigInt?
+  due_date             BigInt?
+  equipment_desc       String?
+  equipment_id         String?
+  equipment_location   String?
+  status               String?
+  certificate_no       String?
+  checked_by           String?
+  instrument_object_id String?
+  qnn                  String?
+  request_type         String?
+  request_id           String?
+  reference_no         String?
+  std_used             Std_String[]
+  report_status        Boolean?
+  department_id        String?
+  remarks              String?
+}
+
+model unit {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  unit String
+}
+
+model tolerance {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  tolerance       Int
+  frequency_day   Int    @default(0)
+  frequency_month Int    @default(0)
+  frequency_year  Int    @default(0)
+  label           String
+  criticality     String
+}
+
+model todo {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  content String
+  done    Boolean
+}
+
+model set_point {
+  id String @id @default(cuid()) @map("_id")
+
+  value       Int?
+  setPoint_id String
+  setPoint    setPoint @relation(fields: [setPoint_id], references: [id], onDelete: NoAction)
+}
+
+model setPoint {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  instrument_desc     String?
+  instrument_id       String?
+  instrument_location String?
+  make                String?
+  range               String?
+  least_count         String? // Change to String or adjust type as needed
+  category            String?
+  equipment_desc      String?
+  equipment_id        String?
+  equipment_location  String?
+  error_claimed       String?
+  set_points          set_point[]
+  qnn                 String?
+  unit                String?
+}
+
+model lockInstrument {
+  id String @id @default(cuid()) @map("_id")
+
+  standard_instrument_id String
+  user_id                String?
+  cal_master_id          String?
+}
+
+model externalReport {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  instrument_id  String?
+  type           String?
+  url            String?  @db.VarChar(Max)
+  user_id        String?
+  certificate_no String?
+  status         Boolean?
+  done_date      BigInt?
+  report_remarks String?
+  department_id  String?
+}
+
+model instrumentProcedure {
+  // schema.prisma
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  title        String?
+  procedure_no String?
+  version_no   String?
+  vendor_name  String?
+  pdf_title    String?
+  pdf_data     String?
+}
+
+model apiStatus {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  collection_name String?
+  timestamp       String?
+  usermail        String?
+  status          String?
+  module          String?
+}
+
+model dbInfo {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  username  String?
+  password  String?
+  host      String
+  port      String?
+  db        String
+  file_name String?
+}
+
+model auth {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  email            String?
+  fname            String?
+  lname            String?
+  phone            String?
+  role             String?
+  username         String?
+  avatar           String?  @db.NVarChar(Max)
+  password         String?
+  attempt          BigInt?
+  password_created BigInt?
+  signature        String?  @db.NVarChar(Max)
+  qnn              String?
+  use_ldap         Boolean?
+}
+
+model instrumentDepartment {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  properties  String?
+  name        String
+  description String?
+  type        Int     @default(1)
+}
+
+model user {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  email            String  @unique
+  fname            String? @default("")
+  lname            String? @default("")
+  phone            String?
+  role             String
+  username         String? @default("")
+  avatar           String? @db.NVarChar(Max)
+  password         String?
+  attempt          Int?
+  password_created BigInt?
+  qnn              String?
+  signature        String? @db.NVarChar(Max)
+}
+
+model calReport {
+  id                         String              @id @default(cuid()) @map("_id")
+  created_at                 BigInt?
+  updated_at                 BigInt?
+  sop_link                   String?
+  request_type               String?
+  request_object_id          String?
+  status                     String?
+  calibration_done           BigInt?
+  calibration_due_date       BigInt?
+  instrument_desc            String?
+  instrument_id              String?
+  setpoints_added            Boolean?
+  instrument_location        String?
+  equipment_location         String?
+  customer_name              String?
+  calibration_done_on_report BigInt?
+  calibration_due_on_report  BigInt?
+  calibration_schedule_id    String?
+  range                      String?
+  accuracy                   String?
+  room_temp                  String?
+  relative_humidity          String?
+  certificate_no_report      String?
+  remarks_report             String?
+  performed_by               Performed_By_User[]
+  approved_by                Approved_By_User[]
+  time_of_calibration        BigInt?
+  time_of_approval           BigInt?
+  external_calibration       Boolean?
+  manual_ins_overdue         Boolean?
+  make                       String?
+  equipment_desc             String?
+  equipment_id               String?
+  frequency                  String?
+  report_type                String?
+  standard_details           Standard_Detail[]
+  least_count                String?             @default("")
+  least_count_for_report     String?             @default("")
+  remarks                    String?
+  set_points                 Set_Point_calR[] // we can remove this
+  set_points_table           Set_Point_Table[]
+  cal_master_id              String?
+  department_id              String?
+  schedule_status            String?
+
+  @@index(fields: [calibration_done_on_report(sort: Desc), department_id])
+}
+
+model contactAdmin {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  email   String
+  subject String
+  message String
+  viewed  Boolean?
+}
+
+model stdCalibrationSchedule {
+  id         String  @id @default(cuid()) @map("_id")
+  created_at BigInt?
+  updated_at BigInt?
+
+  instrument_name      String?
+  instrument_id_no     String?
+  make                 String?
+  model_no             String?
+  range                String?
+  least_count          String?
+  category             String?
+  frequency            String?
+  acceptance_criteria  String?
+  cal_date             BigInt?
+  due_date             BigInt?
+  certificate_no       String?
+  status               String?
+  qnn                  String?
+  remarks              String?
+  department_id        String?
+  calibration_done_on  BigInt?
+  schedule_status      String?
+  checked_by           String?
+  instrument_object_id String?
+  performed_by         Performed_By_User[]
+
+  @@index(fields: [due_date(sort: Desc), department_id])
+}
+
+model EnvData {
+  id                       String   @id @default(cuid()) @map("_id")
+  MONGO_URI                String? // Optional fields
+  SMTP_HOST                String?
+  SMTP_PORT                Int?
+  SMTP_EMAIL               String?
+  SMTP_PASS                String?
+  AUTH_TYPE                String?
+  PORT                     Int?
+  SEED                     String?
+  NOTIFY                   String?
+  DATABASE_URL             String?
+  TO_EMAIL_SUPPORT         String?
+  FROM_EMAIL_SUPPORT       String?
+  CRON                     String?
+  TEST_CRON                String?
+  API_VERSION              String?
+  LOGIN_LOCK_ATTEMPTS      Int?
+  MYSQL_USER               String?
+  MYSQL_PASSWORD           String?
+  MYSQL_DB_NAME            String?
+  MYSQL_DB_BACKUP_PATH     String?
+  SQLSERVER_HOST           String?
+  SQLSERVER_USER           String?
+  SQLSERVER_PASSWORD       String?
+  SQLSERVER_DB_NAME        String?
+  SQLSERVER_DB_BACKUP_PATH String?
+  JWT_SECRET               String?
+  SUPER_ADMIN_USERNAME     String?
+  SUPER_ADMIN_PASSWORD     String?
+  PRISMA_OPTIMIZE          String?
+  PRISMA_LOGGING           String?
+  NODE_ENV                 String?
+  QA_KEY                   String?
+  SEED_USER                String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"lock-instruements.model.js","sourceRoot":"","sources":["../../../../../src/v2/api/lock-instruments/lock-instruements.model.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;AACA,uCAAyB;AAGZ,QAAA,cAAc,GAAG,CAAC,CAAC,MAAM,CAAC;IACrC,sBAAsB,EAAE,CAAC,CAAC,MAAM,EAAE;IAClC,OAAO,EAAE,CAAC,CAAC,MAAM,EAAE;IACnB,aAAa,EAAE,CAAC,CAAC,MAAM,EAAE;CAC1B,CAAC,CAAC"}
