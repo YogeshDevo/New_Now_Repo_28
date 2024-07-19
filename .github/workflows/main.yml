@@ -85,7 +85,7 @@ jobs:
           echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
           set SEED=Y >> .env
           set SEED_BLOCK=Y >> .env
-        #  node src/index.js
+        #   node src/index.js
          # set SEED=N
           #set SEED_BLOCK=N
        
