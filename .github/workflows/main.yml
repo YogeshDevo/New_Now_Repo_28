@@ -97,12 +97,12 @@ jobs:
           echo SEED_BLOCK=N >> .env
 
       - name: Start Backend with PM2
+        shell: pwsh
         run: |
           echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
-           pm2 start index.js --name "cms-backend"
-           pm2 save
-        working-directory: ./src # Adjust this if your index.js is not in the src folder
-
+          pm2 start index.js -i 5 --name "cms-backend"
+          pm2 save
+        working-directory: ./gil_cms_prod/src # Ensure this path is correct
 
       - name: Start Proxy Server with PM2
         shell: pwsh
