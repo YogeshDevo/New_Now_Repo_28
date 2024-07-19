@@ -99,14 +99,14 @@ jobs:
       - name: Start Backend with PM2
         run: |
           echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
-          pm2 start src/index.js --name "cms-backend"
-          pm2 save 
-        
-          #pm2 start src/index.js -i 5
+           pm2 start index.js --name "cms-backend"
+           pm2 save
+        working-directory: ./src # Adjust this if your index.js is not in the src folder
 
 
       - name: Start Proxy Server with PM2
+        shell: pwsh
         run: |
           echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
-          pm2 start ./gil_cms_https_proxy/server.js --name "cms-proxy"
-        #  pm2 start server.js -i 5
+          pm2 start server.js --name "cms-proxy"
+        working-directory: ./gil_cms_https_proxy # Ensure this path is correct
