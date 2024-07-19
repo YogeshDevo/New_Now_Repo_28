@@ -99,6 +99,7 @@ jobs:
       - name: Initialize and Start Backend with PM2
         shell: cmd
         run: |
+          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
           @echo off
           REM Set the configuration file and number of instances for PM2
           set PM2_CONFIG=src/index.js
@@ -108,7 +109,7 @@ jobs:
           echo ======================================
           echo Starting Node.js application with PM2...
           echo ======================================
-
+  
           REM Start Node.js application using PM2
           pm2 start "%PM2_CONFIG%" -i %PM2_INSTANCES%
 
@@ -116,6 +117,8 @@ jobs:
           echo ======================================
           echo Node.js application started with PM2.
           echo ======================================
+         # pause
+       # working-directory: ./gil_cms_prod/src # Ensure this path is correct
         
       
       
