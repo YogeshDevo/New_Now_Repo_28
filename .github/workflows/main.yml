@@ -99,7 +99,6 @@ jobs:
       - name: Initialize and Start Backend with PM2
         shell: cmd
         run: |
-          echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
           @echo off
           REM Set the configuration file and number of instances for PM2
           set PM2_CONFIG=src/index.js
