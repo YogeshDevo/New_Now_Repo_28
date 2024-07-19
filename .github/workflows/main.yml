@@ -96,14 +96,30 @@ jobs:
           echo SEED=N >> .env
           echo SEED_BLOCK=N >> .env
 
-      - name: Start Backend with PM2
-        shell: pwsh
+      - name: Initialize and Start Backend with PM2
+        shell: cmd
         run: |
           echo DATABASE_URL='sqlserver://localhost:1433;database=gil_cms2;username=sa;password=yogesh@123;integratedSecurity=false;encrypt=true;trustServerCertificate=true;'  >> $env:GITHUB_ENV 
-          pm2 start index.js -i 5 --name "cms-backend"
-          pm2 save
-        working-directory: ./gil_cms_prod/src # Ensure this path is correct
+          @echo off
+          REM Set the configuration file and number of instances for PM2
+          set PM2_CONFIG=src/index.js
+          set PM2_INSTANCES=5
 
+          REM Display messages for starting Node.js application
+          echo ======================================
+          echo Starting Node.js application with PM2...
+          echo ======================================
+
+          REM Start Node.js application using PM2
+          pm2 start "%PM2_CONFIG%" -i %PM2_INSTANCES%
+
+          REM Display messages for completion
+          echo ======================================
+          echo Node.js application started with PM2.
+          echo ======================================
+          pause
+        working-directory: ./gil_cms_prod # Ensure this path is correct
+      
       - name: Start Proxy Server with PM2
         shell: pwsh
         run: |
