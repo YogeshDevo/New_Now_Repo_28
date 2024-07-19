@@ -116,8 +116,8 @@ jobs:
           echo ======================================
           echo Node.js application started with PM2.
           echo ======================================
-          pause
-        working-directory: ./gil_cms_prod # Ensure this path is correct
+        
+      
       
       - name: Start Proxy Server with PM2
         shell: pwsh
